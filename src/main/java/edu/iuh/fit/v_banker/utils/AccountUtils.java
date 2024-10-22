@@ -26,6 +26,8 @@ public class AccountUtils {
         String randomNumber = String.valueOf(randNumber);
 
         StringBuilder accountNumber = new StringBuilder();
+
+        //return account number format: 2024 + randomSixDigits
         return accountNumber.append(year).append(randomNumber).toString();
     }
 }

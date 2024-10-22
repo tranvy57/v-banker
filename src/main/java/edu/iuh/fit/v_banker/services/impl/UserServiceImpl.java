@@ -2,9 +2,11 @@ package edu.iuh.fit.v_banker.services.impl;
 
 import edu.iuh.fit.v_banker.dto.AccountInfo;
 import edu.iuh.fit.v_banker.dto.BankResponse;
+import edu.iuh.fit.v_banker.dto.EmailDetails;
 import edu.iuh.fit.v_banker.dto.UserRequest;
 import edu.iuh.fit.v_banker.entities.User;
 import edu.iuh.fit.v_banker.repositories.UserRepository;
+import edu.iuh.fit.v_banker.services.EmailService;
 import edu.iuh.fit.v_banker.services.UserService;
 import edu.iuh.fit.v_banker.utils.AccountUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,10 @@ import java.math.BigDecimal;
 public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    EmailService emailService;
+
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
         /**
@@ -45,6 +51,15 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User savedUser = userRepository.save(newUser);
+
+        EmailDetails emailDetails = EmailDetails.builder()
+                        .recipient(savedUser.getEmail())
+                        .subject("ACCOUNT CREATION")
+                        .messageBody("Congratulations! Your account has been successfully created. \n" +
+                                "Your account name is: " + savedUser.getFirstName() + " " + savedUser.getLastName() + " " + savedUser.getOtherName() + "\n" +
+                                "Your account number is: " + savedUser.getAccountNumber() )
+                        .build();
+        emailService.sendEmailAlert(emailDetails);
         return BankResponse.builder()
                 .responseCode(AccountUtils.ACCOUNT_CREATED_SUCCESS)
                 .responseMessage(AccountUtils.ACCOUNT_CREATED_SUCCESS_MESSAGE)
