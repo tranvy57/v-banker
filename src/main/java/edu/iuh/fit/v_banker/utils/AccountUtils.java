@@ -1,5 +1,7 @@
 package edu.iuh.fit.v_banker.utils;
 
+import jakarta.servlet.http.PushBuilder;
+
 import java.time.Year;
 
 public class AccountUtils {
@@ -8,6 +10,12 @@ public class AccountUtils {
     public static final String ACCOUNT_EXISTS_MESSAGE = "This user already has an account Created";
     public static final String ACCOUNT_CREATED_SUCCESS = "002";
     public static final String ACCOUNT_CREATED_SUCCESS_MESSAGE = "Account has been created Successfully";
+    public static final String ACCOUNT_NOT_EXIST_CODE = "003";
+    public static final String ACCOUNT_NOT_EXIST_MESSAGE = "User with the provided account number does not exist";
+    public static final String ACCOUNT_FOUND_CODE = "004";
+    public static final String ACCOUNT_FOUND_MESSAGE = "User Account found";
+    public static final String ACCOUNT_CREDITED_SUCCESS = "005";
+    public static final String ACCOUNT_CREDITED_SUCCESS_MESSAGE = "Account has been credited successfully";
 
     /**
      * 2024 + randomSixDigits
