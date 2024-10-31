@@ -16,6 +16,12 @@ public class AccountUtils {
     public static final String ACCOUNT_FOUND_MESSAGE = "User Account found";
     public static final String ACCOUNT_CREDITED_SUCCESS = "005";
     public static final String ACCOUNT_CREDITED_SUCCESS_MESSAGE = "Account has been credited successfully";
+    public static final String INSUFFICIENT_BALANCE_CODE = "006";
+    public static final String INSUFFICIENT_BALANCE_MESSAGE = "Insufficient balance in the account";
+    public static final String ACCOUNT_DEBITED_SUCCESS = "007";
+    public static final String ACCOUNT_DEBITED_SUCCESS_MESSAGE = "Account has been debited successfully";
+    public static final String TRANSFER_SUCCESS = "008";
+    public static final String TRANSFER_SUCCESS_MESSAGE = "Transfer has been completed successfully";
 
     /**
      * 2024 + randomSixDigits
