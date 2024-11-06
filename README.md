@@ -1,15 +1,15 @@
 # Dự án V-Banker
 
 ## Giới thiệu
-Dự án V-Banker là một ứng dụng quản lý tài khoản ngân hàng mini, cung cấp các API để thực hiện các thao tác đơn giản như đăng nhập, tạo tài khoản, truy vấn số dư, chuyển khoản, và gửi email thông báo.
+Dự án V-Banker là một ứng dụng quản lý tài khoản ngân hàng mini, cung cấp các API để thực hiện các thao tác như đăng nhập, tạo tài khoản, truy vấn số dư, chuyển khoản, và gửi email thông báo.
 
 ## Công nghệ sử dụng
 - Java
 - Spring Boot
+- Spring Security
 - Maven
 - MySQL
 - Jakarta Mail
-- Swagger UI 
 
 ## Cài đặt và chạy dự án
 
@@ -21,7 +21,7 @@ Dự án V-Banker là một ứng dụng quản lý tài khoản ngân hàng min
 ### Cài đặt
 1. Clone repository:
     ```bash
-    git clone [<repository-url>](https://github.com/tranvy57/v-banker.git)
+    git clone https://github.com/tranvy57/v-banker.git
     cd v-banker
     ```
 
@@ -52,10 +52,77 @@ Dự án V-Banker là một ứng dụng quản lý tài khoản ngân hàng min
     mvn spring-boot:run
     ```
 
-2. Truy cập Swagger UI để kiểm tra các API:
-    ```
-    http://localhost:8080/swagger-ui.html
-    ```
+2. Sử dụng postman hoặc trình duyệt để truy cập vào các API.
+
 
 ## Các API chính
+
+### Users
+
+| Phương thức | Url                 | Mô tả                          | Request Body / Params     |    
+|-------------|---------------------|--------------------------------|---------------------------|
+| POST        | /api/user           | Tạo tài khoản mới              | [JSON](#create-user)      |
+| POST        | /api/login          | Đăng nhập (token)              | [JSON](#login)            |
+| GET         | /api/balanceEnquiry | Kiểm tra số dư                 | [Param](#balanceEnquiry)  |
+| POST        | /api/credit         | Thêm tiền vào tài khoản        | [JSON](#credit-and-debit) |
+| POST        | /api/debit          | Trừ tiền trong tài khoản       | [JSON](#credit-and-debit) |
+| POST        | /api/transfer       | Chuyển tiền giữa các tài khoản | [JSON](#transfer)         |
+
+
+### Statements
+| Phương thức | Url              | Mô tả                    | Request Body / Params |    
+|-------------|------------------|--------------------------|-----------------------|
+| GET         | /bankStatement   | Gửi bảng sao kê về email | [Param](#createUser)  |
+
+## Mẫu request
+
+##### <a id="create-user">Create user-> /api/user </a>
+```json
+{
+   "firstName": "Tran",
+   "lastName": "Vy",
+   "otherName": "Thi Thuy",
+   "gender": "Female",
+   "address": "Go Vap",
+   "email": "a@gmail",
+   "password": "1234",
+   "phoneNumber": "0962527550",
+   "alternativePhoneNumber": "01233444"
+}
+```
+
+##### <a id="login">Login -> /api/login </a>
+```json
+{
+   "email": "tranvy.art@gmail.com",
+   "password": "1234"
+}
+```
+##### <a id="balanceEnquiry">Balance Enquiry -> /api/balanceEnquiry</a>
+```json
+{
+   "accountNumber" : "123456789" 
+}
+```
+
+##### <a id="credit-and-debit">Credit and Debit -> /api/transfer </a>
+```json
+{
+   "accountNumber": "123456789",
+   "amount": 1000
+}
+```
+
+##### <a id="transfer">Transfer -> /api/transfer </a>
+```json
+
+{
+   "sourceAccountNumber": "2024212916",
+   "destinationAccountNumber": "2024313662",
+   "amount": 5000
+}
+```
+
+
+
 
