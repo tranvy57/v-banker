@@ -25,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
 
     @Override
+    // this method is used to filter the request and check the token
     protected void doFilterInternal(@NonNull  HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
         String token = getTokenFromRequest(request);
         if(StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)){
