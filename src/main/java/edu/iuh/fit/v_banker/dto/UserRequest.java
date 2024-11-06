@@ -1,5 +1,6 @@
 package edu.iuh.fit.v_banker.dto;
 
+import edu.iuh.fit.v_banker.entities.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,9 @@ public class UserRequest {
     private String address;
     private String stateOfOrigin;
     private String email;
+    private String password;
     private String phoneNumber;
     private String alternativePhoneNumber;
+    private Role role;
+
 }

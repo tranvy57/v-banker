@@ -5,10 +5,12 @@ import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import edu.iuh.fit.v_banker.dto.EmailDetails;
 import edu.iuh.fit.v_banker.entities.Transaction;
 import edu.iuh.fit.v_banker.entities.User;
 import edu.iuh.fit.v_banker.repositories.TransactionRepository;
 import edu.iuh.fit.v_banker.repositories.UserRepository;
+import edu.iuh.fit.v_banker.services.EmailService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,7 @@ public class BankStatement {
 
     private TransactionRepository transactionRepository;
     private UserRepository userRepository;
+    private EmailService emailService;
 
     private static final String FILE = System.getProperty("user.home") + "/Desktop/MysStatement.pdf";
 
@@ -127,6 +130,17 @@ public class BankStatement {
         document.add(transactionTable);
 
         document.close();
+
+
+        // Send email with attachment
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(user.getEmail())
+                .subject("STATEMENT OF ACCOUNT")
+                .messageBody("Dear " + customerName + ",\n\nPlease find attached your statement of account for the period " + startDate.toLocalDate() + " to " + endDate.toLocalDate() + ".\n\nBest Regards,\nV-Banker")
+                .attachment(FILE)
+                .build();
+
+        emailService.sendEmailWithAttachment(emailDetails);
 
         return transactions;
     }

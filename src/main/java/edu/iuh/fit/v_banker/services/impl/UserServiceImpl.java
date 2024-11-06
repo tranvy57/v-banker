@@ -1,19 +1,28 @@
 
 package edu.iuh.fit.v_banker.services.impl;
 
+import edu.iuh.fit.v_banker.config.JwtTokenProvider;
 import edu.iuh.fit.v_banker.dto.*;
+import edu.iuh.fit.v_banker.entities.Role;
 import edu.iuh.fit.v_banker.entities.User;
 import edu.iuh.fit.v_banker.repositories.UserRepository;
 import edu.iuh.fit.v_banker.services.EmailService;
 import edu.iuh.fit.v_banker.services.TransactionService;
 import edu.iuh.fit.v_banker.services.UserService;
 import edu.iuh.fit.v_banker.utils.AccountUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -24,6 +33,16 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     TransactionService transactionService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
@@ -48,9 +67,11 @@ public class UserServiceImpl implements UserService {
                 .accountNumber(AccountUtils.generateAccountNumber())
                 .accountBalance(BigDecimal.ZERO)
                 .email(userRequest.getEmail())
+                .password(passwordEncoder.encode(userRequest.getPassword()))
                 .phoneNumber(userRequest.getPhoneNumber())
                 .alternativePhoneNumber(userRequest.getAlternativePhoneNumber())
                 .status("ACTIVE")
+                .role(Role.ROLE_USER)
                 .build();
 
         User savedUser = userRepository.save(newUser);
@@ -59,7 +80,7 @@ public class UserServiceImpl implements UserService {
                         .recipient(savedUser.getEmail())
                         .subject("ACCOUNT CREATION")
                         .messageBody("Congratulations! Your account has been successfully created. \n" +
-                                "Your account name is: " + savedUser.getFirstName() + " " + savedUser.getLastName() + " " + savedUser.getOtherName() + "\n" +
+                                "Your account name is: " + savedUser.getFirstName()  + " " + savedUser.getOtherName() +  " " + savedUser.getLastName()+ "\n" +
                                 "Your account number is: " + savedUser.getAccountNumber() )
                         .build();
         emailService.sendEmailAlert(emailDetails);
@@ -69,7 +90,7 @@ public class UserServiceImpl implements UserService {
                 .accountInfo(AccountInfo.builder()
                         .accountNumber(savedUser.getAccountNumber())
                         .accountBalance(savedUser.getAccountBalance())
-                        .accountName(savedUser.getFirstName() + " " + savedUser.getLastName()+ " " + savedUser.getOtherName())
+                        .accountName(savedUser.getFirstName() + " " + savedUser.getOtherName() + " " + savedUser.getLastName())
                         .build())
                 .build();
     }
@@ -92,7 +113,7 @@ public class UserServiceImpl implements UserService {
                 .accountInfo(AccountInfo.builder()
                         .accountBalance(foundUser.getAccountBalance())
                         .accountNumber(foundUser.getAccountNumber())
-                        .accountName(foundUser.getFirstName() + " " + foundUser.getLastName() + " " + foundUser.getOtherName())
+                        .accountName(foundUser.getFirstName() + " " + foundUser.getOtherName() + " " + foundUser.getLastName() )
                         .build()
                 )
                 .build();
@@ -106,7 +127,7 @@ public class UserServiceImpl implements UserService {
             return AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE;
         }
         User foundUser = userRepository.findByAccountNumber(request.getAccountNumber());
-        return foundUser.getFirstName() + " " + foundUser.getLastName() + " " + foundUser.getOtherName();
+        return foundUser.getFirstName()+ " " + foundUser.getOtherName() + " " + foundUser.getLastName() ;
     }
 
     @Override
@@ -136,10 +157,41 @@ public class UserServiceImpl implements UserService {
                 .responseCode(AccountUtils.ACCOUNT_CREDITED_SUCCESS)
                 .responseMessage(AccountUtils.ACCOUNT_CREDITED_SUCCESS_MESSAGE)
                 .accountInfo(AccountInfo.builder()
-                        .accountName(userToCredit.getFirstName() + " " + userToCredit.getLastName() + " " + userToCredit.getOtherName())
+                        .accountName(userToCredit.getFirstName()+ " " + userToCredit.getOtherName() + " " + userToCredit.getLastName() )
                         .accountNumber(userToCredit.getAccountNumber())
                         .accountBalance(userToCredit.getAccountBalance())
                         .build())
+                .build();
+    }
+
+    @Override
+    public BankResponse login(LoginDto loginDto){
+        Authentication authentication = null;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+            );
+        } catch (AuthenticationException ex) {
+            // Xử lý khi đăng nhập không thành công
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.LOGIN_FAILED)
+                    .responseMessage(AccountUtils.LOGIN_FAILED_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+
+
+        EmailDetails loginAlert = EmailDetails.builder()
+                .subject("You are logged in")
+                .recipient(loginDto.getEmail())
+                .messageBody("You have successfully logged in. if you did not initiate this login, please contact us immediately")
+                .build();
+
+        emailService.sendEmailAlert(loginAlert);
+        return BankResponse.builder()
+                .responseCode(AccountUtils.LOGIN_SUCCESS)
+                .responseMessage(jwtTokenProvider.generateToken(authentication))
+                .accountInfo(null)
                 .build();
     }
 
@@ -187,7 +239,7 @@ public class UserServiceImpl implements UserService {
                     .responseCode(AccountUtils.ACCOUNT_DEBITED_SUCCESS)
                     .responseMessage(AccountUtils.ACCOUNT_DEBITED_SUCCESS_MESSAGE)
                     .accountInfo(AccountInfo.builder()
-                            .accountName(userToDebit.getFirstName() + " " + userToDebit.getLastName() + " " + userToDebit.getOtherName())
+                            .accountName(userToDebit.getFirstName()+ " " + userToDebit.getOtherName() + " " + userToDebit.getLastName() )
                             .accountNumber(userToDebit.getAccountNumber())
                             .accountBalance(userToDebit.getAccountBalance())
                             .build())
@@ -273,5 +325,10 @@ public class UserServiceImpl implements UserService {
                 .accountInfo(null)
                 .build();
 
+    }
+
+    public static void main(String[] args) {
+        UserServiceImpl userService = new UserServiceImpl();
+        System.out.println(userService.passwordEncoder.encode("1234"));
     }
 }

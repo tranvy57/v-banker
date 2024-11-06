@@ -22,7 +22,10 @@ public class AccountUtils {
     public static final String ACCOUNT_DEBITED_SUCCESS_MESSAGE = "Account has been debited successfully";
     public static final String TRANSFER_SUCCESS = "008";
     public static final String TRANSFER_SUCCESS_MESSAGE = "Transfer has been completed successfully";
-
+    public static final String LOGIN_SUCCESS = "009";
+    public static final String LOGIN_SUCCESS_MESSAGE = "Login Successful";
+    public static final String LOGIN_FAILED = "010";
+    public static final String LOGIN_FAILED_MESSAGE = "Login Failed";
     /**
      * 2024 + randomSixDigits
      */

@@ -19,6 +19,12 @@ public class UserController {
             summary = "Create a new account",
             description = "Create a new account and assigning an account ID"
     )
+
+    @PostMapping("/login")
+    public BankResponse login(@RequestBody LoginDto loginDto){
+        return userService.login(loginDto);
+    }
+
     @PostMapping
     public BankResponse createAccount(@RequestBody UserRequest userRequest) {
         return userService.createAccount(userRequest);
